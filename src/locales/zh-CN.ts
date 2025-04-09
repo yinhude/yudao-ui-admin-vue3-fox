@@ -115,7 +115,7 @@ export default {
   },
   login: {
     welcome: '欢迎使用本系统',
-    message: '开箱即用的中后台管理系统',
+    message: '全球连接器技术查询平台 查参数、找对配、采购物料就上合适连接器',
     tenantname: '租户名称',
     username: '用户名',
     password: '密码',
