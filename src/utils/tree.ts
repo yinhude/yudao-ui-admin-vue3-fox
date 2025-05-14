@@ -215,6 +215,96 @@ export const eachTree = (treeDatas: any[], callBack: Fn, parentNode = {}) => {
     }
   })
 }
+/**
+ * 构造树型结构数据
+ * @param {*} data 数据源
+ * @param {*} id id字段 默认 'id'
+ * @param {*} parentId 子节点的父ID字段 默认 'parentId'
+ * @param {*} originId 父节点的originId字段 默认 'originId'
+ * @param {*} children 孩子节点字段 默认 'children'
+ */
+export const handleTreeOriginId = (
+  data: any[],
+  id: string = 'id',
+  parentId: string = 'parentId',
+  originId: string = 'originId',
+  children: string = 'children'
+) => {
+  // 1. 创建id到节点的映射
+  const idMap = {};
+  data.forEach(item => {
+    idMap[item[id]] = item;
+  });
+
+  // 2. 创建originId到子节点数组的映射
+  const originIdMap = {};
+  data.forEach(item => {
+    const parentOriginId = item[parentId];
+    if (!originIdMap[parentOriginId]) {
+      originIdMap[parentOriginId] = [];
+    }
+    originIdMap[parentOriginId].push(item);
+  });
+
+  // 3. 识别根节点（parentId === originId）
+  const roots = data.filter(item => {
+    return String(item[parentId]) === String(item[originId]);
+  });
+
+  // 4. 如果没有找到根节点，尝试找到没有父节点的项作为根
+  if (roots.length === 0) {
+    const potentialRoots = data.filter(item => {
+      const parent = data.find(d => String(d[id]) === String(item[parentId]));
+      return !parent;
+    });
+    
+    if (potentialRoots.length === 0) {
+      return [];
+    }
+    
+    roots.push(potentialRoots[0]);
+  }
+
+  // 5. 递归构建树结构，添加循环引用检测
+  const visitedNodes = new Set(); // 用于检测循环引用
+  
+  // 5. 收集所有根节点ID，确保它们不会出现在子节点中
+  const rootIds = new Set(roots.map(root => root[id]));
+
+  const buildTree = (nodes) => {
+    return nodes
+      .filter(node => !rootIds.has(node[id])) // 过滤掉根节点
+      .map(node => {
+        if (visitedNodes.has(node[id])) {
+          console.warn(`检测到循环引用，节点ID: ${node[id]}`);
+          return { ...node, [children]: [] };
+        }
+        
+        visitedNodes.add(node[id]);
+        
+        // 查找子节点，并排除根节点
+        const childNodes = (originIdMap[node[originId]] || [])
+          .filter(child => !rootIds.has(child[id]));
+        
+        if (childNodes.length > 0) {
+          node[children] = buildTree(childNodes);
+        } else {
+          node[children] = [];
+        }
+        
+        visitedNodes.delete(node[id]);
+        return node;
+      });
+  };
+
+  // 为每个根节点构建子树
+  const result = roots.map(root => {
+    root[children] = buildTree(originIdMap[root[originId]] || []);
+    return root;
+  });
+
+  return result;
+};
 
 /**
  * 构造树型结构数据

@@ -172,6 +172,9 @@ export enum DICT_TYPE {
   // ========== MALL - 商品模块 ==========
   PRODUCT_SPU_STATUS = 'product_spu_status', //商品状态
 
+  // ========== MALL - 基础产品模块 ==========
+  BPRODUCT_SPU_STATUS = 'bproduct_self_category', //商品状态
+
   // ========== MALL - 交易模块 ==========
   EXPRESS_CHARGE_MODE = 'trade_delivery_express_charge_mode', //快递的计费方式
   TRADE_AFTER_SALE_STATUS = 'trade_after_sale_status', // 售后 - 状态

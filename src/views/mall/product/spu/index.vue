@@ -129,6 +129,7 @@
         </template>
       </el-table-column>
       <el-table-column label="商品编号" min-width="140" prop="id" />
+      <el-table-column align="center" label="基础产品信息" min-width="90" prop="bproductId" />
       <el-table-column label="商品信息" min-width="300">
         <template #default="{ row }">
           <div class="flex">
